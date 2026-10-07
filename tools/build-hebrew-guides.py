@@ -63,11 +63,27 @@ def set_table_borders(table, color=LIGHT_GRAY, size="6"):
         tag.set(qn("w:color"), color)
 
 
-def set_run_font(run, size=None, bold=None, color=None):
+def set_run_font(run, size=None, bold=None, color=None, rtl=None):
     run.font.name = FONT
-    run._element.get_or_add_rPr().get_or_add_rFonts().set(qn("w:ascii"), FONT)
-    run._element.get_or_add_rPr().get_or_add_rFonts().set(qn("w:hAnsi"), FONT)
-    run._element.get_or_add_rPr().get_or_add_rFonts().set(qn("w:cs"), FONT)
+    r_pr = run._element.get_or_add_rPr()
+    r_fonts = r_pr.get_or_add_rFonts()
+    r_fonts.set(qn("w:ascii"), FONT)
+    r_fonts.set(qn("w:hAnsi"), FONT)
+    r_fonts.set(qn("w:cs"), FONT)
+    if rtl is not None:
+        rtl_node = r_pr.find(qn("w:rtl"))
+        if rtl_node is None:
+            rtl_node = OxmlElement("w:rtl")
+            r_pr.append(rtl_node)
+        rtl_node.set(qn("w:val"), "1" if rtl else "0")
+        lang = r_pr.find(qn("w:lang"))
+        if lang is None:
+            lang = OxmlElement("w:lang")
+            r_pr.append(lang)
+        if rtl:
+            lang.set(qn("w:bidi"), "he-IL")
+        else:
+            lang.set(qn("w:val"), "en-US")
     if size is not None:
         run.font.size = Pt(size)
     if bold is not None:
@@ -84,6 +100,54 @@ def set_rtl(paragraph, alignment=WD_ALIGN_PARAGRAPH.RIGHT):
         bidi = OxmlElement("w:bidi")
         p_pr.append(bidi)
     bidi.set(qn("w:val"), "1")
+
+
+def set_ltr(paragraph, alignment=WD_ALIGN_PARAGRAPH.LEFT):
+    paragraph.alignment = alignment
+    p_pr = paragraph._p.get_or_add_pPr()
+    bidi = p_pr.find(qn("w:bidi"))
+    if bidi is None:
+        bidi = OxmlElement("w:bidi")
+        p_pr.append(bidi)
+    bidi.set(qn("w:val"), "0")
+
+
+def set_style_rtl(style, alignment=WD_ALIGN_PARAGRAPH.RIGHT):
+    style.paragraph_format.alignment = alignment
+    p_pr = style._element.get_or_add_pPr()
+    bidi = p_pr.find(qn("w:bidi"))
+    if bidi is None:
+        bidi = OxmlElement("w:bidi")
+        p_pr.append(bidi)
+    bidi.set(qn("w:val"), "1")
+
+
+def set_section_rtl(section):
+    sect_pr = section._sectPr
+    bidi = sect_pr.find(qn("w:bidi"))
+    if bidi is None:
+        bidi = OxmlElement("w:bidi")
+        sect_pr.append(bidi)
+    bidi.set(qn("w:val"), "1")
+
+
+def set_table_rtl(table):
+    tbl_pr = table._tbl.tblPr
+    bidi_visual = tbl_pr.find(qn("w:bidiVisual"))
+    if bidi_visual is None:
+        bidi_visual = OxmlElement("w:bidiVisual")
+        tbl_pr.insert(0, bidi_visual)
+    bidi_visual.set(qn("w:val"), "1")
+
+
+def set_rtl_list_indent(paragraph):
+    p_pr = paragraph._p.get_or_add_pPr()
+    ind = p_pr.find(qn("w:ind"))
+    if ind is None:
+        ind = OxmlElement("w:ind")
+        p_pr.append(ind)
+    ind.set(qn("w:right"), "420")
+    ind.set(qn("w:hanging"), "260")
 
 
 def set_keep_with_next(paragraph):
@@ -122,7 +186,7 @@ def add_page_number(paragraph):
     run._r.append(fld_char)
     run._r.append(instr)
     run._r.append(fld_end)
-    set_run_font(run, 9, color=TEXT_GRAY)
+    set_run_font(run, 9, color=TEXT_GRAY, rtl=False)
 
 
 def configure_document(title, subtitle):
@@ -134,6 +198,7 @@ def configure_document(title, subtitle):
     section.bottom_margin = Cm(1.8)
     section.left_margin = Cm(2.2)
     section.right_margin = Cm(2.2)
+    set_section_rtl(section)
 
     styles = doc.styles
     normal = styles["Normal"]
@@ -144,6 +209,7 @@ def configure_document(title, subtitle):
     normal.font.size = Pt(11.5)
     normal.paragraph_format.space_after = Pt(7)
     normal.paragraph_format.line_spacing = 1.12
+    set_style_rtl(normal)
 
     title_style = styles["Title"]
     title_style.font.name = FONT
@@ -153,6 +219,7 @@ def configure_document(title, subtitle):
     title_style.font.size = Pt(28)
     title_style.font.bold = True
     title_style.font.color.rgb = RGBColor(0, 0, 0)
+    set_style_rtl(title_style)
     remove_paragraph_border(title_style)
 
     for style_name, size in (("Heading 1", 18), ("Heading 2", 14), ("Heading 3", 12)):
@@ -167,29 +234,30 @@ def configure_document(title, subtitle):
         style.paragraph_format.space_before = Pt(12)
         style.paragraph_format.space_after = Pt(6)
         style.paragraph_format.keep_with_next = True
+        set_style_rtl(style)
 
     p = doc.add_paragraph(style="Title")
     set_rtl(p)
     remove_paragraph_border(p)
-    p.add_run(title)
+    set_run_font(p.add_run(title), rtl=True)
     p.paragraph_format.space_before = Pt(70)
     p.paragraph_format.space_after = Pt(20)
 
     p = doc.add_paragraph()
     set_rtl(p)
     run = p.add_run(subtitle)
-    set_run_font(run, 15, color=TEXT_GRAY)
+    set_run_font(run, 15, color=TEXT_GRAY, rtl=True)
     p.paragraph_format.space_after = Pt(32)
 
     p = doc.add_paragraph()
     set_rtl(p)
     run = p.add_run("KAOP by Nirit Terehovsky")
-    set_run_font(run, 13, bold=True)
+    set_run_font(run, 13, bold=True, rtl=False)
 
     p = doc.add_paragraph()
     set_rtl(p)
     run = p.add_run("גרסה מעודכנת על בסיס הדמו המאומת מיום 7 באוקטובר 2026")
-    set_run_font(run, 10.5, color=TEXT_GRAY)
+    set_run_font(run, 10.5, color=TEXT_GRAY, rtl=True)
 
     doc.add_page_break()
     add_footer(doc)
@@ -205,7 +273,7 @@ def add_footer(doc):
 def add_heading(doc, text, level=1):
     p = doc.add_paragraph(style=f"Heading {level}")
     set_rtl(p)
-    p.add_run(text)
+    set_run_font(p.add_run(text), rtl=True)
     set_keep_with_next(p)
     return p
 
@@ -215,36 +283,38 @@ def add_para(doc, text, bold_lead=None):
     set_rtl(p)
     if bold_lead and text.startswith(bold_lead):
         first = p.add_run(bold_lead)
-        set_run_font(first, bold=True)
+        set_run_font(first, bold=True, rtl=True)
         rest = p.add_run(text[len(bold_lead):])
-        set_run_font(rest)
+        set_run_font(rest, rtl=True)
     else:
         run = p.add_run(text)
-        set_run_font(run)
+        set_run_font(run, rtl=True)
     return p
 
 
 def add_bullets(doc, items):
     for item in items:
-        p = doc.add_paragraph(style="List Bullet")
+        p = doc.add_paragraph()
         set_rtl(p)
-        run = p.add_run(item)
-        set_run_font(run)
+        set_rtl_list_indent(p)
+        run = p.add_run(f"• {item}")
+        set_run_font(run, rtl=True)
         p.paragraph_format.space_after = Pt(4)
 
 
 def add_numbered(doc, items):
-    for item in items:
-        p = doc.add_paragraph(style="List Number")
+    for index, item in enumerate(items, start=1):
+        p = doc.add_paragraph()
         set_rtl(p)
-        run = p.add_run(item)
-        set_run_font(run)
+        set_rtl_list_indent(p)
+        run = p.add_run(f"{index}. {item}")
+        set_run_font(run, rtl=True)
         p.paragraph_format.space_after = Pt(5)
 
 
 def add_code(doc, text):
     p = doc.add_paragraph()
-    p.alignment = WD_ALIGN_PARAGRAPH.LEFT
+    set_ltr(p)
     p.paragraph_format.left_indent = Cm(0.6)
     p.paragraph_format.right_indent = Cm(0.6)
     p.paragraph_format.space_before = Pt(4)
@@ -254,15 +324,16 @@ def add_code(doc, text):
     shd.set(qn("w:fill"), "F2F2F2")
     p_pr.append(shd)
     run = p.add_run(text)
+    set_run_font(run, 9.5, rtl=False)
     run.font.name = "Courier New"
     run._element.get_or_add_rPr().get_or_add_rFonts().set(qn("w:ascii"), "Courier New")
     run._element.get_or_add_rPr().get_or_add_rFonts().set(qn("w:hAnsi"), "Courier New")
-    run.font.size = Pt(9.5)
     return p
 
 
 def add_table(doc, headers, rows, widths=None):
     table = doc.add_table(rows=1, cols=len(headers))
+    set_table_rtl(table)
     table.alignment = WD_TABLE_ALIGNMENT.CENTER
     table.autofit = True
     table.style = "Table Grid"
@@ -276,7 +347,7 @@ def add_table(doc, headers, rows, widths=None):
         p = cell.paragraphs[0]
         set_rtl(p, WD_ALIGN_PARAGRAPH.CENTER)
         run = p.add_run(header)
-        set_run_font(run, 10.5, bold=True, color=RGBColor(255, 255, 255))
+        set_run_font(run, 10.5, bold=True, color=RGBColor(255, 255, 255), rtl=True)
     for row_index, values in enumerate(rows):
         row = table.add_row()
         prevent_row_split(row)
@@ -290,7 +361,7 @@ def add_table(doc, headers, rows, widths=None):
             p = cell.paragraphs[0]
             set_rtl(p)
             run = p.add_run(str(value))
-            set_run_font(run, 10)
+            set_run_font(run, 10, rtl=True)
     set_table_borders(table)
     if widths:
         for row in table.rows:
@@ -303,12 +374,12 @@ def add_table(doc, headers, rows, widths=None):
 def add_link_lines(doc, links):
     for label, url in links:
         p = doc.add_paragraph()
-        p.alignment = WD_ALIGN_PARAGRAPH.LEFT
+        set_ltr(p)
         p.paragraph_format.space_after = Pt(5)
         lead = p.add_run(f"{label}: ")
-        set_run_font(lead, 10.5, bold=True)
+        set_run_font(lead, 10.5, bold=True, rtl=False)
         run = p.add_run(url)
-        set_run_font(run, 10.5)
+        set_run_font(run, 10.5, rtl=False)
 
 
 def add_contents(doc, items):
