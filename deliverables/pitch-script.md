@@ -56,6 +56,8 @@ Use the appendix when the customer asks how the demo works, exactly which permis
 
 The architecture is intentionally small so the platform behavior stays visible. The frontend and Redis are healthy now. I will first show the controls, then trigger the same configuration fault that the repair PR addresses.
 
+The saved live evidence is not a synthetic example. Grafana moved from Normal to Pending to Firing and returned to Normal after recovery. KAOP completed run `run_e15c91fc04701d47c908ec0f` with a high confidence diagnosis of the Redis Service selector mismatch and the liveness probe regression. The open GitHub pull request contains an AgentOps review comment that validates the repair.
+
 ## Closing
 
 The value of KAOP is the operating layer around agents. Platform engineering gets one place to run workflows, enforce boundaries, and retain evidence. Product teams can keep adopting agents without forcing the organization to accept invisible access or untraceable actions.
@@ -72,4 +74,7 @@ The value of KAOP is the operating layer around agents. Platform engineering get
 - Komodor platform: https://komodor.com/platform/
 - Run agents: https://komodor.com/platform/run-agents/
 - Govern agents: https://komodor.com/platform/govern-agents/
-
+- Verified KAOP run: https://kaop.komodor.com/a/hire-task-9/runs/run_e15c91fc04701d47c908ec0f
+- Grafana alert rule: https://contentcheetah182.grafana.net/alerting/grafana/fg0jdq07jv9c0e/view
+- GitHub repair PR: https://github.com/nirittere/kaop-guestbook-demo/pull/1
+- AgentOps review comment: https://github.com/nirittere/kaop-guestbook-demo/pull/1#issuecomment-6045140326
