@@ -1,0 +1,16 @@
+:root { color-scheme: dark; font-family: Inter, ui-sans-serif, system-ui, sans-serif; background: #17131f; color: #fbf9ff; }
+body { margin: 0; min-height: 100vh; display: grid; place-items: center; background: radial-gradient(circle at 80% 20%, #56339e 0, transparent 34%), #17131f; }
+main { width: min(720px, calc(100% - 48px)); }
+.eyebrow { color: #d8ff70; letter-spacing: .14em; font-size: .78rem; }
+h1 { margin: 0; font-size: clamp(3rem, 10vw, 7rem); line-height: .95; letter-spacing: -.06em; }
+.intro { max-width: 560px; color: #cfc8d9; font-size: 1.1rem; }
+form { margin-top: 42px; }
+label { display: block; margin-bottom: 8px; }
+.form-row { display: flex; gap: 10px; }
+input { min-width: 0; flex: 1; padding: 14px; border: 1px solid #625a70; background: #211b2c; color: inherit; font: inherit; }
+button { padding: 14px 20px; border: 0; background: #d8ff70; color: #17131f; font: inherit; font-weight: 700; cursor: pointer; }
+#status { min-height: 24px; color: #d8ff70; }
+ul { padding: 0; list-style: none; display: grid; gap: 10px; }
+li { padding: 14px 16px; background: rgba(255,255,255,.07); border-left: 3px solid #875cff; }
+@media (max-width: 520px) { .form-row { flex-direction: column; } }
+
