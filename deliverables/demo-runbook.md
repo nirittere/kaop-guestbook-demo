@@ -35,10 +35,11 @@ Demonstrate a governed incident workflow and an automated GitHub review in less 
 
 4. Open direct browser tabs for:
 
-   - KAOP fleet or agent inventory
-   - KAOP incident workflow and recent run history
-   - Grafana alert rule
-   - GitHub repair pull request
+   - [KAOP Kubernetes RCA agent](https://kaop.komodor.com/a/hire-task-9/agents/agt_361674dea38c9ac19ee24b9a)
+   - [Verified KAOP incident run](https://kaop.komodor.com/a/hire-task-9/runs/run_e15c91fc04701d47c908ec0f)
+   - [Grafana alert rule](https://contentcheetah182.grafana.net/alerting/grafana/fg0jdq07jv9c0e/view)
+   - [GitHub repair pull request](https://github.com/nirittere/kaop-guestbook-demo/pull/1)
+   - [AgentOps review comment](https://github.com/nirittere/kaop-guestbook-demo/pull/1#issuecomment-6045140326)
 
 5. Confirm the PR remains open and contains the KAOP reviewer comment.
 
@@ -90,6 +91,8 @@ Point out:
 - Read the root cause, evidence, confidence, affected resources, and suggested fix.
 - Connect the finding to the visible Service selector mismatch.
 
+The verified run is `run_e15c91fc04701d47c908ec0f`. It completed in 2 minutes 48 seconds with 15 tool calls. Its high confidence finding identified both the Redis Service selector mismatch and the liveness probe regression. The run also recorded that `pods/exec` was forbidden for the ServiceAccount.
+
 ### 8:30 to 10:30 - GitHub reviewer
 
 - Open the `fix/redis-service-selector` PR.
@@ -108,6 +111,7 @@ make verify
 - Show the Redis endpoint returning.
 - Show frontend Pods Ready.
 - Show the Grafana alert resolving.
+- Confirm that the rule header returns to `Normal`.
 - End on the KAOP run record and audit evidence.
 
 ## Output contract for the RCA workflow
@@ -129,4 +133,3 @@ make verify
 - Do not merge the repair PR.
 - Do not improvise a second incident during the interview.
 - Recover before answering extended questions about cluster state.
-

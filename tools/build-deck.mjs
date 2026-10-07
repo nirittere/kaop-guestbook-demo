@@ -10,6 +10,7 @@ const buildDir = path.join(workspaceDir, ".deck-build");
 const outputDir = path.join(workspaceDir, "deliverables");
 const finalPath = path.join(outputDir, "KAOP-by-Nirit-Terehovsky.pptx");
 const backgroundPath = path.join(workspaceDir, "assets", "kaop-control-plane-background.png");
+const buildStamp = new Date().toISOString().replaceAll(":", "-").replaceAll(".", "-");
 
 const { finalizePresentation } = await import(
   pathToFileURL(path.join(SKILL_DIR, "container_tools", "artifact_tool_utils.mjs")).href,
@@ -285,9 +286,9 @@ function metric(slide, value, caption, left, top, color = C.cyan) {
 {
   const slide = baseSlide(8, "Live platform tour", "The demo starts with controls, then follows live evidence across three systems");
   const systems = [
-    ["KAOP", "Inventory, workflow, permissions, run history", C.violet],
-    ["Grafana", "Alert evaluation and webhook delivery", C.amber],
-    ["GitHub", "Repair diff and automated review", C.cyan],
+    ["KAOP", "Verified RCA run\nHigh confidence finding", C.violet],
+    ["Grafana", "Normal / Pending / Firing / Normal", C.amber],
+    ["GitHub", "Open PR #1 with AgentOps review", C.cyan],
   ];
   systems.forEach(([name, detail, color], index) => {
     const x = 76 + index * 390;
@@ -301,8 +302,11 @@ function metric(slide, value, caption, left, top, color = C.cyan) {
   textBox(slide, "Live trigger", 234, 516, 150, 30, { fontSize: 18, bold: true, color: C.danger });
   textBox(slide, "make incident", 420, 510, 240, 40, { fontSize: 24, bold: true, color: C.white });
   textBox(slide, "Redis endpoints disappear, probes fail, and restarts rise", 680, 510, 350, 44, { fontSize: 17, color: C.muted });
-  addNotes(slide, "Start the demo in KAOP. Show inventory, workflow structure, permission scope, and run history before triggering the fault. Then move to Grafana, the KAOP finding, and the open GitHub PR.", [
+  addNotes(slide, "Start the demo in KAOP. Show inventory, workflow structure, permission scope, and run history before triggering the fault. The verified live run identified the Service selector mismatch, the dependency-coupled liveness probe, and the exact recovery. Then move to Grafana and the open GitHub PR.", [
     "Product Architect Home Assignment.pdf, page 2",
+    "https://kaop.komodor.com/a/hire-task-9/runs/run_e15c91fc04701d47c908ec0f",
+    "https://contentcheetah182.grafana.net/alerting/grafana/fg0jdq07jv9c0e/view",
+    "https://github.com/nirittere/kaop-guestbook-demo/pull/1#issuecomment-6045140326",
   ]);
 }
 
@@ -397,7 +401,7 @@ function metric(slide, value, caption, left, top, color = C.cyan) {
   const slide = baseSlide(12, "Incident evidence and recovery", "Kubernetes, Grafana, and KAOP expose the fault and the recovery");
   const states = [
     ["Healthy", "1 endpoint", "2/2 Ready", "0 restarts", C.mint],
-    ["Incident", "0 endpoints", "new Pod not Ready", "restarts rising", C.danger],
+    ["Incident", "0 endpoints", "new Pod not Ready", "7 restarts observed", C.danger],
     ["Recovered", "1 endpoint", "2/2 Ready", "alert resolved", C.cyan],
   ];
   states.forEach(([title, endpoint, ready, restart, color], index) => {
@@ -411,8 +415,10 @@ function metric(slide, value, caption, left, top, color = C.cyan) {
   textBox(slide, "Recovery command", 220, 548, 210, 34, { fontSize: 18, bold: true, color: C.cyan });
   shape(slide, "roundRect", 440, 536, 430, 54, C.panel2, C.line, 12);
   textBox(slide, "make recover && make verify", 458, 544, 394, 38, { fontSize: 21, bold: true, align: "center" });
-  addNotes(slide, "The local smoke test produced a real Redis Service with no endpoints, failed readiness and liveness probes, BackOff events, and three restarts on the new frontend Pod. Recovery restored the healthy overlay and endpoint.", [
+  addNotes(slide, "The live workflow produced a real Redis Service with no endpoints, connection failures, failed readiness and liveness probes, and seven restarts on the new frontend Pod. KAOP returned high confidence, named the mismatched role selector, identified the liveness regression, and recommended the exact repair. Recovery restored the endpoint and Grafana returned to Normal.", [
     "Live verification from the kaop-demo cluster on 2026-10-07",
+    "https://kaop.komodor.com/a/hire-task-9/runs/run_e15c91fc04701d47c908ec0f",
+    "https://contentcheetah182.grafana.net/alerting/grafana/fg0jdq07jv9c0e/view",
   ]);
 }
 
@@ -453,7 +459,7 @@ const result = await finalizePresentation({
   requiredNativeChartOwnerSlides: [],
   fontPolicy,
   verifyArtifactToolImport: true,
-  receiptPath: path.join(stagingDir, "KAOP-by-Nirit-Terehovsky.validation.json"),
+  receiptPath: path.join(stagingDir, `KAOP-by-Nirit-Terehovsky.${buildStamp}.validation.json`),
 });
 
 console.log(JSON.stringify({ finalPath, fontFamily, result }, null, 2));

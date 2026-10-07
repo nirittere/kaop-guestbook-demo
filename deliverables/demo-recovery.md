@@ -32,7 +32,7 @@ This removes only the disposable local `kaop-demo` cluster.
 
 - Show the alert rule and its last evaluation.
 - Confirm Alloy and kube-state-metrics are running.
-- Use the saved KAOP incident run as evidence.
+- Use the [verified KAOP incident run](https://kaop.komodor.com/a/hire-task-9/runs/run_e15c91fc04701d47c908ec0f) as evidence.
 - Continue with live Kubernetes evidence and recovery.
 
 ## If KAOP cannot reach the cluster
@@ -43,7 +43,7 @@ This removes only the disposable local `kaop-demo` cluster.
 
 ## If the GitHub reviewer does not comment
 
-- Show the existing KAOP review comment on the open PR.
+- Show the [existing AgentOps review comment](https://github.com/nirittere/kaop-guestbook-demo/pull/1#issuecomment-6045140326) on the open PR.
 - Show the connected repository and reviewer workflow run history.
 - Do not create a second PR during the interview.
 
@@ -60,4 +60,3 @@ make recover
 kubectl -n kaop-demo get pods
 kubectl -n kaop-demo get endpoints redis-master
 ```
-
