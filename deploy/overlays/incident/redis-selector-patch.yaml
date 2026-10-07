@@ -5,5 +5,4 @@ metadata:
 spec:
   selector:
     app: redis
-    role: unavailable
-
+    role: master
