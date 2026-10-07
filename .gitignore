@@ -5,4 +5,7 @@
 dist/
 tmp/
 *.log
-
+.codex-finalizer/
+.deck-build/
+deliverables/rendered/
+node_modules
