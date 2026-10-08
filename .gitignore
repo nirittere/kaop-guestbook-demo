@@ -9,3 +9,8 @@ tmp/
 .deck-build/
 deliverables/rendered/
 node_modules
+
+# Submission artifacts are uploaded separately and must not be committed.
+*.docx
+*.pptx
+*.pdf
