@@ -9,9 +9,8 @@ spec:
         - name: guestbook
           livenessProbe:
             httpGet:
-              path: /readyz
+              path: /livez
               port: http
             initialDelaySeconds: 3
             periodSeconds: 4
             failureThreshold: 2
-
